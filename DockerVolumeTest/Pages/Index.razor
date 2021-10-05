@@ -1,0 +1,51 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Hosting
+@using System.IO
+@inject NavigationManager navManager
+@inject IWebHostEnvironment webHostEnvironment;
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+@if(!fileNames?.Any() ?? true)
+{
+    <p>No files</p>
+}
+else
+{
+    foreach(var file in fileNames)
+    {
+        <a target="_blank" href="@($"{navManager.BaseUri}/svmedia/{file}")" >@file</a>
+        <br />
+        <br />
+    }
+}
+
+
+@code{
+    List<string> fileNames = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try
+        {
+            string path = Path.Combine(webHostEnvironment.WebRootPath, "svmedia");
+            var names = Directory.GetFiles(path)?.ToList() ?? new List<string>();
+            if (names.Any())
+            {
+                foreach(var name in names)
+                {
+                    fileNames.Add(Path.GetFileName(name));
+                }
+            }
+        }
+        catch(System.Exception ex)
+        {
+            fileNames.Add(ex.Message);
+        }
+
+    }
+}
